@@ -74,7 +74,7 @@ public class AuthorRestController {
 
     }
 
-    @DeleteMapping("/author/{id}") //delete author by id ENDPOINT #5
+    @DeleteMapping("/authors/{id}") //delete author by id ENDPOINT #5
     public ResponseEntity<?> deleteAuthorbyId(@PathVariable("id") Long id) {
         Author thisAuthor = repo.findById(id).orElse(null);
         if (thisAuthor == null) {
@@ -82,7 +82,6 @@ public class AuthorRestController {
         }
 
         repo.delete(thisAuthor);
-        deleteAuthorbyId(id);
         return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
     }
 
