@@ -1,0 +1,611 @@
+openapi: "3.0.1"
+info: 
+  title: PART1
+  description: a book ordering management system that stores books, authors and orders
+  version: "2.0"
+servers:
+  - url: http://localhost:8080/
+    description: LocalHost 
+tags:
+- name: authors
+  description: Info about Authors
+- name: books
+  description: Info about Books
+- name: orders
+  description: Info about Orders
+  
+components:
+  schemas:
+    ErrorInfo:
+      type: object
+      properties:
+        message:
+          type: string
+          default: Error message
+          
+    Authors: 
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+          description: Author name
+        birthyear: 
+          type: integer
+          description: Birth year of Author
+        nationality: 
+          type: string
+          description: Nationality of Author
+        books: 
+          type: array
+          items:
+            $ref: '#/components/schemas/Books'     
+            
+    Books:
+      type: object
+      properties: 
+        isbn: 
+          type: string
+          description: Unique ISBN of book
+        title: 
+          type: string
+          description: Name of book
+        price: 
+          type: integer
+          description: Price of book
+        authors: 
+          type: array
+          items: 
+            $ref: '#/components/schemas/Authors'
+        orders: 
+          type: array
+          items: 
+            $ref: '#/components/schemas/Orders'
+            
+    Orders: 
+      type: object
+      properties: 
+        id: 
+          type: integer
+          description: Id of order
+        datetime: 
+          type: number
+          description: Date and time of order
+        customername: 
+          type: string 
+          description: Name of customer
+        books: 
+          type: array
+          description: List of books in order
+          items: 
+            $ref: '#/components/schemas/Books'
+                
+  requestBodies:
+    AuthorBody:
+      description: A JSON object containing a Author information
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Authors'  
+    BookBody:
+      description: A JSON object containing a Book information
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Books'          
+    OrderBody:
+      description: A JSON object containing a Order information
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Orders'          
+            
+  
+
+paths: 
+  /authors:
+    get:
+      summary: List all Authors
+      tags: 
+        - authors
+      responses: 
+        '200': 
+          description: OK All Authors displayed
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Authors'
+          
+        '404':
+          description: No Authors Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInfo' 
+    post:
+      tags:
+        - authors
+      summary: Creates an Author
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Authors'
+      responses: 
+        '201':
+          description: Created
+        '409':
+          description: Author of this id already exists     
+          
+
+  /authors/{id}:
+    get:
+      summary: Return an Author by their ID
+      tags:
+        - authors
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK  
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/Authors'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInfo'     
+              
+    put:
+      summary: Updates an existing Author
+      tags:
+        - authors
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Authors'
+      responses:
+        '200':
+          description: OK response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Authors'
+        '404':
+          description: Author not found 
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInfo'      
+          
+    delete:
+      tags:
+        - authors
+      summary: Deletes an Author by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK response (Deleted)
+        '404':
+          description: There is nothing to delete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInfo' 
+  
+  /authors/{id}/books:
+    get:
+      tags: 
+        - authors
+      summary: List Books of a specific author
+      parameters: 
+        - in: path
+          name: id
+          required: true
+          description: the id attribute of the author
+          schema: 
+            type: integer
+      responses: 
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: array
+                items:
+                  $ref: '#/components/schemas/Books'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInfo'  
+                
+        '204':
+          description: No content (Book list empty)
+        
+            
+  
+  
+  
+                
+  
+            
+  /books:
+    get:
+      summary: Get list of books
+      tags: 
+        - books
+      responses: 
+        '200': 
+          description: OK Status displayed
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Books'
+        '204':
+          description: No books found 
+          
+        '400':
+          description: Bad request 
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInfo'  
+                
+    post:
+      tags:
+        - books
+      summary: Creates an Book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Books'
+      responses: 
+        '201':
+          description: Created
+        '409':
+          description: Book of this ISBN already exists              
+                
+                
+  /books/{isbn}:
+    get:
+      summary: Return Book by their ISBN
+      tags:
+        - books
+      parameters:
+        - in: path
+          name: isbn
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK  
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/Books'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInfo'                
+                
+    put:
+      summary: Updates an existing Book
+      tags:
+        - books
+      parameters:
+        - in: path
+          name: isbn
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Books'
+      responses:
+        '200':
+          description: OK response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Books'
+        '404':
+          description: Book not found 
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInfo'                  
+                
+    delete:
+      tags:
+        - books
+      summary: Deletes Book by ISBN
+      parameters:
+        - in: path
+          name: isbn
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK response (Deleted)
+        '404':
+          description: There is nothing to delete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInfo'       
+                
+                
+  /books/{isbn}/authors:
+    get: 
+      summary: Get author(s) of specific book
+      tags: 
+        - books
+      parameters:
+        - in: path
+          name: isbn
+          required: true
+          schema: 
+            type: string
+      responses:
+        '200':
+          description: OK
+          content: 
+            application/json:
+              schema: 
+                type: array
+                items: 
+                  $ref: '#/components/schemas/Authors'
+        '204': 
+          description: No Authors found 
+        '404':
+          description: Book not found 
+          content: 
+            application/json: 
+              schema:
+                $ref: '#/components/schemas/ErrorInfo'
+                  
+  /books/{isbn}/orders:
+    get:
+      summary: Get Order(s) containing that book
+      tags: 
+        - books
+      parameters: 
+        - in: path
+          name: isbn
+          required: true
+          schema: 
+            type: string 
+      responses: 
+        '200': 
+          description: OK
+          content: 
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/Orders'
+        '404':
+          description: Not Orders Found 
+          content: 
+            application/json: 
+              schema: 
+                type: string 
+                items: 
+                  $ref: '#/components/schemas/ErrorInfo'
+     
+            
+      
+      
+      
+                
+  /orders:             
+    get:
+      summary: Get list of all Orders
+      tags: 
+        - orders
+      responses: 
+        '200': 
+          description: OK Status displayed
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Orders'
+     
+        '404':
+          description: No Orders found 
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInfo'
+                
+    post:
+      tags:
+        - orders
+      summary: Creates an Order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Orders'
+      responses: 
+        '201':
+          description: Order created
+        '409':
+          description: Order of this id already exists            
+                
+  /orders/{id}:
+    get:
+      summary: Return Order by their ID
+      tags:
+        - orders
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK  
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/Orders'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInfo'             
+                
+    put: 
+      summary: Update Order by ID
+      tags: 
+        - orders
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: 
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Orders'      
+      responses: 
+        '200':
+          description: OK
+          type: object
+          $ref: '#/components/schemas/Orders'
+        
+        '404':
+          description: Order ID not found 
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInfo' 
+      
+  /orders/{id}/books: 
+    get: 
+      summary: List Book in ID Order
+      tags: 
+        - orders 
+      parameters: 
+        - in: path
+          name: id
+          required: true
+          schema: 
+            type: integer
+      responses: 
+        '200':
+          description: OK
+          type: array
+          $ref: '#/components/schemas/Books'
+
+        '404':
+          description: Books Not Found 
+          content: 
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/ErrorInfo'
+                
+    post: 
+      summary: Add Book to Order
+      tags:
+        - orders
+      parameters: 
+        - in: path
+          name: id
+          required: true
+          schema: 
+            type: integer
+      responses: 
+        '200': 
+          description: OK
+        '404': 
+          description: Order Not Found
+          content: 
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/ErrorInfo'
+                
+  /orders/{id}/books/{isbn}:
+    delete: 
+      summary: Remove book from existing order
+      tags: 
+        - orders
+      parameters: 
+        - in: path
+          name: id
+          required: true
+          schema: 
+            type: integer
+        - in: path
+          name: isbn
+          required: true
+          schema: 
+            type: string
+      responses: 
+        '200': 
+          description: OK (Book removed successfully)
+        '404': 
+          description: Order id or book ISBN not found 
+          content: 
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/ErrorInfo'
+          
+          
+              
+  
+  
+  
