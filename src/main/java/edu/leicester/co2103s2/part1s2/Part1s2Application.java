@@ -41,7 +41,7 @@ public class Part1s2Application implements CommandLineRunner {
 
         Author a1 = new Author();
         a1.setName("JK Rowling");
-        a1.setBirthyear(2-4-1995);
+        a1.setBirthyear(1995);
         a1.setNationality("British");
 
         a1=authorRepo.save(a1);
@@ -50,7 +50,7 @@ public class Part1s2Application implements CommandLineRunner {
 
         Author a2 = new Author();
         a2.setName("Khalid Hosseini");
-        a2.setBirthyear(4-10-1980);
+        a2.setBirthyear(1980);
         a2.setNationality("American");
 
         a2 = authorRepo.save(a2);
