@@ -114,15 +114,8 @@ import java.util.List;
                 return new ResponseEntity<>(new ErrorInfo("This books " + isbn + " does not exist"),HttpStatus.NOT_FOUND);
 
             }
-            List<Order> theseOrders = new ArrayList<>();
-            List<Order> ordersList = orderRepo.findAll();
-            for (Order orders: ordersList){
-                for (Book book: orders.getBooksList()){
-                    if (book.getISBN().equals(isbn)){
-                        theseOrders.add(orders); //add them all to a list (those containing the matching isbn)
-                    }
-                }
-            }
+            List<Order> theseOrders = orderRepo.findByBooksList(books);
+            
 
             if (theseOrders.isEmpty()){
                 return new ResponseEntity<>(new ErrorInfo("There are no existing orders containing book of isbn: " + isbn), HttpStatus.NOT_FOUND);
